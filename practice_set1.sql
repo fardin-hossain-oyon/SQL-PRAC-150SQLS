@@ -259,9 +259,53 @@ FROM CTE;
 
 
 --Q23
+WITH CTE AS
+(
+SELECT Prices.product_id, SUM(Prices.price * Units_Sold.units) AS total_amount, SUM(Units_Sold.units) AS total_units
+FROM Prices
+JOIN Units_Sold ON Prices.product_id = Units_Sold.product_id
+WHERE TO_CHAR(Units_Sold.purchase_date) BETWEEN TO_CHAR(Prices.start_date) AND TO_CHAR(Prices.end_date)
+GROUP BY Prices.product_id
+)
+SELECT product_id, ROUND(total_amount/total_units, 2) AS average_price
+FROM CTE;
 
 
 
+--Q24
+SELECT player_id, TO_CHAR(MIN(event_date), 'YYYY-MM-DD') AS first_login
+FROM Activity
+GROUP BY player_id;
+
+
+--Q25
+SELECT a.player_id, a.device_id
+FROM Activity a
+JOIN
+(
+SELECT player_id, TO_CHAR(MIN(event_date), 'YYYY-MM-DD') AS first_login
+FROM Activity
+GROUP BY player_id
+) t
+ON a.player_id = t.player_id
+WHERE TO_CHAR(a.event_date, 'YYYY-MM-DD') = t.first_login;
+
+
+
+--Q26
+SELECT Products.product_name, SUM(unit)
+FROM Products
+JOIN Orders ON Products.product_id = Orders.product_id
+WHERE TO_CHAR(Orders.order_date, 'YYYY-MM-DD') BETWEEN '2020-02-01' AND '2020-02-29' 
+GROUP BY Products.product_name
+HAVING SUM(unit)>=100;
+
+
+
+--Q27
+SELECT *
+FROM Users
+WHERE REGEXP_LIKE(mail, '^[a-zA-Z][a-zA-Z0-9_.-]*@leetcode\.com$');
 
 
 
