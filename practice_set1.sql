@@ -336,6 +336,36 @@ AND cte.total_count = 2;
 
 
 --Q29
+SELECT DISTINCT CONTENT.title
+FROM TV_PROGRAM
+JOIN CONTENT ON TV_PROGRAM.content_id = CONTENT.content_id
+WHERE CONTENT.kids_content = 'Y'
+AND EXTRACT (MONTH FROM TV_PROGRAM.program_date) = 6
+AND CONTENT.content_type = 'Movies';
+
+
+--Q30
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
