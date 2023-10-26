@@ -309,9 +309,33 @@ WHERE REGEXP_LIKE(mail, '^[a-zA-Z][a-zA-Z0-9_.-]*@leetcode\.com$');
 
 
 
+--Q28
+WITH CTE AS
+(
+SELECT t1.CUSTOMER_ID, COUNT(*) AS total_count
+FROM
+(
+SELECT 
+    Orders_28.CUSTOMER_ID
+    , EXTRACT(MONTH FROM Orders_28.ORDER_DATE) AS order_month
+    , SUM(Orders_28.QUANTITY * Products_28.price) AS amount_spent
+FROM Orders_28
+JOIN Products_28 ON Products_28.PRODUCT_ID = Orders_28.PRODUCT_ID
+WHERE EXTRACT(MONTH FROM Orders_28.ORDER_DATE) IN (6,7)
+GROUP BY Orders_28.CUSTOMER_ID, order_month
+HAVING SUM(Orders_28.QUANTITY * Products_28.price) >=100
+ORDER BY Orders_28.CUSTOMER_ID
+) t1
+GROUP BY t1.CUSTOMER_ID
+)
+SELECT  c.CUSTOMER_ID, c.name
+FROM CTE cte, Customers c
+WHERE cte.CUSTOMER_ID = c.CUSTOMER_ID
+AND cte.total_count = 2;
 
 
 
+--Q29
 
 
 
