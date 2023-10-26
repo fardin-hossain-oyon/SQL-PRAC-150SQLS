@@ -202,17 +202,63 @@ FROM
 
 
 --Q20
-SELECT AD_ID, ACTION, COUNT(*)
+WITH CTE AS
+(
+SELECT t1.AD_ID, SUM(t1.clicked_viewed) AS total_clicks, COUNT(t1.clicked_viewed) AS total_views_and_clicks
+FROM
+(
+SELECT
+    AD_ID
+    , ACTION
+    ,CASE 
+        WHEN ACTION = 'Clicked' THEN 1
+        WHEN ACTION = 'Viewed' THEN 0
+        WHEN ACTION = 'Ignored' THEN NULL
+    END
+    AS clicked_viewed
 FROM ADS
-GROUP BY AD_ID, ACTION
-ORDER BY AD_ID;
+) t1
+GROUP BY t1.AD_ID
+)
+SELECT CTE.AD_ID, NVL(ROUND((CTE.total_clicks/CTE.total_views_and_clicks)*100, 2), 0) AS ctr
+FROM CTE;
 
 
 
+--Q21
+SELECT Employee.employee_id, t1.team_size
+FROM
+(
+SELECT team_id, COUNT(*) AS team_size
+FROM Employee
+GROUP BY team_id
+) t1
+JOIN Employee
+ON t1.team_id = Employee.team_id;
 
 
 
+--Q22
+WITH CTE AS
+(
+SELECT Countries.country_id, Countries.country_name, AVG(Weather.weather_state) AS avg_weather
+FROM Countries
+JOIN Weather ON Countries.country_id = Weather.country_id
+WHERE TO_CHAR(Weather.day, 'YYYY-MM-DD') BETWEEN '2019-11-01' AND '2019-11-30'
+GROUP BY Countries.country_id, Countries.country_name
+)
+SELECT
+    country_name
+    , CASE
+        WHEN avg_weather <= 15 THEN 'Cold'
+        WHEN avg_weather >= 25 THEN 'Hot'
+        ELSE 'Warm'
+    END
+    AS weather_type
+FROM CTE;
 
+
+--Q23
 
 
 
