@@ -471,6 +471,63 @@ FROM CTE;
 
 
 
+--Q41
+SELECT 
+    Warehouse.name
+    , SUM(Warehouse.units * Products_41.Width * Products_41.Length * Products_41.Height) AS volume
+FROM Warehouse
+JOIN Products_41 ON Warehouse.product_id = Products_41.product_id
+GROUP BY Warehouse.name;
+
+
+
+--Q42
+SELECT t1.sale_date, NVL(t1.apple_count, 0) - NVL(t2.orange_count, 0) AS diff
+FROM
+(
+SELECT sale_date, sold_num AS apple_count
+FROM Sales_42
+WHERE fruit = 'apples'
+) t1
+FULL OUTER JOIN
+(
+SELECT sale_date, sold_num AS orange_count
+FROM Sales_42
+WHERE fruit = 'oranges'
+) t2
+ON t1.sale_date = t2.sale_date;
+
+
+
+
+--Q43
+SELECT ROUND(t1.cons_players/t2.total_players, 2) AS fraction
+FROM
+(
+    SELECT COUNT(*) AS cons_players
+    FROM
+    (
+        SELECT DISTINCT player_id
+        FROM
+        (
+            SELECT
+                player_id
+                , event_date
+                , LAG(event_date, 1) OVER (PARTITION BY player_id ORDER BY event_date) AS lag_col
+            FROM Activity
+        )
+        WHERE event_date - lag_col = 1
+    )
+ ) t1,
+(
+SELECT COUNT(*) AS total_players
+FROM
+(
+SELECT DISTINCT player_id
+FROM Activity
+)
+) t2;
+
 
 
 
