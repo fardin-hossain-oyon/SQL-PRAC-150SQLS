@@ -458,16 +458,24 @@ WHERE from_id < to_id;
 
 
 --Q40
-WITH CTE AS
-(
-SELECT Prices.product_id, SUM(Prices.price * Units_Sold.units) AS total_amount, SUM(Units_Sold.units) AS total_units
-FROM Prices
-JOIN Units_Sold ON Prices.product_id = Units_Sold.product_id
-WHERE TO_CHAR(Units_Sold.purchase_date) BETWEEN TO_CHAR(Prices.start_date) AND TO_CHAR(Prices.end_date)
-GROUP BY Prices.product_id
+WITH cte AS (
+    SELECT
+        prices.product_id,
+        SUM(prices.price * units_sold.units) AS total_amount,
+        SUM(units_sold.units)                AS total_units
+    FROM
+             prices
+        JOIN units_sold ON prices.product_id = units_sold.product_id
+    WHERE
+        to_char(units_sold.purchase_date) BETWEEN to_char(prices.start_date) AND to_char(prices.end_date)
+    GROUP BY
+        prices.product_id
 )
-SELECT product_id, ROUND(total_amount/total_units, 2) AS average_price
-FROM CTE;
+SELECT
+    product_id,
+    round(total_amount / total_units, 2) AS average_price
+FROM
+    cte;
 
 
 
@@ -501,40 +509,107 @@ ON t1.sale_date = t2.sale_date;
 
 
 --Q43
-SELECT ROUND(t1.cons_players/t2.total_players, 2) AS fraction
+SELECT
+    round(t1.cons_players / t2.total_players, 2) AS fraction
 FROM
-(
-    SELECT COUNT(*) AS cons_players
-    FROM
     (
-        SELECT DISTINCT player_id
+        SELECT
+            COUNT(*) AS cons_players
         FROM
-        (
-            SELECT
-                player_id
-                , event_date
-                , LAG(event_date, 1) OVER (PARTITION BY player_id ORDER BY event_date) AS lag_col
-            FROM Activity
-        )
-        WHERE event_date - lag_col = 1
-    )
- ) t1,
+            (
+                SELECT DISTINCT
+                    player_id
+                FROM
+                    (
+                        SELECT
+                            player_id,
+                            event_date,
+                            LAG(event_date, 1)
+                            OVER(PARTITION BY player_id
+                                 ORDER BY
+                                     event_date
+                            ) AS lag_col
+                        FROM
+                            activity
+                    )
+                WHERE
+                    event_date - lag_col = 1
+            )
+    ) t1,
+    (
+        SELECT
+            COUNT(*) AS total_players
+        FROM
+            (
+                SELECT DISTINCT
+                    player_id
+                FROM
+                    activity
+            )
+    ) t2;
+
+
+
+
+--Q44
+SELECT e1.name
+FROM Employee_44 e1
+JOIN
 (
-SELECT COUNT(*) AS total_players
+SELECT manager_id, COUNT(*)
+FROM Employee_44
+GROUP BY manager_id
+HAVING COUNT(*)>=5
+) e2
+ON e1.id = e2.manager_id;
+
+
+
+--Q45
+SELECT 
+    Department_45.dept_name
+    , COUNT(Student_45.student_id) AS student_number
+FROM Department_45
+LEFT JOIN Student_45 ON Department_45.dept_id = Student_45.dept_id
+GROUP BY Department_45.dept_name
+ORDER BY student_number DESC, Department_45.dept_name ASC;
+
+
+
+--Q46
+SELECT DISTINCT t1.customer_id
 FROM
 (
-SELECT DISTINCT player_id
-FROM Activity
-)
-) t2;
+SELECT DISTINCT customer_id, product_key, COUNT(*) OVER (PARTITION BY customer_id) AS bought_products
+FROM Customer
+) t1,
+(
+SELECT DISTINCT COUNT(*) AS total_products
+FROM Product_46
+) t2
+WHERE t1.bought_products = t2.total_products;
 
 
 
 
 
+--Q47
+SELECT project_id, employee_id
+FROM
+(
+SELECT 
+    Project.project_id
+    , Project.employee_id
+    , experience_years
+    , MAX(experience_years) OVER (PARTITION BY Project.project_id) AS max_exp
+FROM Project
+JOIN Employee_47 ON Project.employee_id = Employee_47.employee_id
+) t1
+WHERE t1.experience_years = t1.max_exp;
 
 
 
+--Q48
 
 
 
