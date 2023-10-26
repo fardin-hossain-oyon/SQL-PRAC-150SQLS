@@ -345,6 +345,30 @@ AND CONTENT.content_type = 'Movies';
 
 
 --Q30
+SELECT QUERIES.id, QUERIES.year, NVL(NPV.npv, 0)
+FROM QUERIES
+LEFT JOIN NPV 
+ON (QUERIES.id = NPV.id AND QUERIES.year = NPV.year)
+ORDER BY QUERIES.id;
+
+
+--Q31
+SELECT QUERIES.id, QUERIES.year, NVL(NPV.npv, 0)
+FROM QUERIES
+LEFT JOIN NPV 
+ON (QUERIES.id = NPV.id AND QUERIES.year = NPV.year)
+ORDER BY QUERIES.id;
+
+
+--Q32
+SELECT Employee_UNI.unique_id, Employees.name
+FROM Employees
+LEFT JOIN Employee_UNI ON Employees.id = Employee_UNI.id
+ORDER BY Employees.name;
+
+
+--Q33
+
 
 
 
