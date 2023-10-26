@@ -368,12 +368,106 @@ ORDER BY Employees.name;
 
 
 --Q33
+SELECT Users_detail.name, NVL(SUM(Rides.distance), 0) AS travelled_distance
+FROM Users_detail
+LEFT JOIN Rides ON Users_detail.id = Rides.user_id
+GROUP BY Users_detail.name
+ORDER BY travelled_distance DESC, Users_detail.name ASC; 
+
+
+--Q34
+SELECT Products.product_name, SUM(unit)
+FROM Products
+JOIN Orders ON Products.product_id = Orders.product_id
+WHERE TO_CHAR(Orders.order_date, 'YYYY-MM-DD') BETWEEN '2020-02-01' AND '2020-02-29' 
+GROUP BY Products.product_name
+HAVING SUM(unit)>=100;
+
+
+
+--Q35
+SELECT name AS results
+FROM(
+SELECT Users_35.name, COUNT(*) AS rating_count
+FROM Users_35
+JOIN Movie_Rating ON Users_35.user_id = Movie_rating.user_id
+GROUP BY Users_35.name
+ORDER BY rating_count DESC, Users_35.name ASC
+FETCH FIRST 1 ROW ONLY
+)
+UNION
+(
+SELECT title AS results
+FROM(
+SELECT Movies.title, AVG(movie_rating.rating) AS avg_rating
+FROM Movies
+JOIN Movie_Rating ON Movies.movie_id = Movie_Rating.movie_id
+WHERE TO_CHAR(Movie_rating.created_at, 'YYYY-MM-DD') BETWEEN '2020-02-01' AND '2020-02-29'
+GROUP BY Movies.title
+ORDER BY avg_rating DESC, Movies.title ASC
+FETCH FIRST 1 ROW ONLY
+)
+);
+
+
+
+--Q36
+SELECT Users_detail.name, NVL(SUM(Rides.distance), 0) AS travelled_distance
+FROM Users_detail
+LEFT JOIN Rides ON Users_detail.id = Rides.user_id
+GROUP BY Users_detail.name
+ORDER BY travelled_distance DESC, Users_detail.name ASC;
+
+
+--Q37
+SELECT Employee_UNI.unique_id, Employees.name
+FROM Employees
+LEFT JOIN Employee_UNI ON Employees.id = Employee_UNI.id
+ORDER BY Employees.name;
 
 
 
 
+--Q38
+SELECT Students.id, Students.name
+FROM Students
+LEFT JOIN Departments ON Students.department_id = Departments.id
+WHERE Departments.name IS NULL;
 
 
+--Q39
+WITH CTE AS
+(
+SELECT from_id, to_id, SUM(duration) AS dur
+FROM Calls
+GROUP BY from_id, to_id
+), CTE2 AS
+(
+SELECT
+    c1.from_id, c1.to_id, NVL(c1.dur, 0) + NVL(c2.dur, 0) AS total_dur
+FROM CTE c1
+LEFT JOIN CTE c2
+ON c1.from_id = c2.to_id
+AND c1.to_id = c2.from_id
+ORDER BY c1.from_id
+)
+SELECT *
+FROM CTE2
+WHERE from_id < to_id;
+
+
+
+--Q40
+WITH CTE AS
+(
+SELECT Prices.product_id, SUM(Prices.price * Units_Sold.units) AS total_amount, SUM(Units_Sold.units) AS total_units
+FROM Prices
+JOIN Units_Sold ON Prices.product_id = Units_Sold.product_id
+WHERE TO_CHAR(Units_Sold.purchase_date) BETWEEN TO_CHAR(Prices.start_date) AND TO_CHAR(Prices.end_date)
+GROUP BY Prices.product_id
+)
+SELECT product_id, ROUND(total_amount/total_units, 2) AS average_price
+FROM CTE;
 
 
 
